@@ -2,6 +2,7 @@ mod cli;
 mod compare;
 mod config;
 mod db;
+mod highlight;
 mod logging;
 mod models;
 mod search;

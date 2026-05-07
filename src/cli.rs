@@ -7,6 +7,7 @@ use crossterm::style::Stylize;
 use crate::compare;
 use crate::config;
 use crate::db::{Database, default_config_dir, default_data_dir};
+use crate::highlight;
 use crate::models::{SearchResult, SeedFile};
 use crate::{search, session, tui};
 
@@ -291,7 +292,7 @@ fn render_lookup(
         result
             .snippets
             .iter()
-            .map(|snippet| highlight_snippet(&result.language, snippet))
+            .map(|snippet| highlight::highlight_cli(&result.language, snippet))
             .collect::<Vec<_>>()
             .join("\n")
     } else {
@@ -302,14 +303,14 @@ fn render_lookup(
     }
 
     let mut output = vec![
-        format!("Topic: {}", result.topic),
-        format!("Language: {}", title_case(&result.language)),
+        format!("{} {}", "Topic:".dim(), result.topic.clone().bold()),
+        format!("{} {}", "Language:".dim(), title_case(&result.language)),
         String::new(),
         snippets,
     ];
     if !result.related.is_empty() {
         output.push(String::new());
-        output.push("Related:".to_string());
+        output.push("Related:".dim().to_string());
         output.extend(result.related.iter().map(|topic| format!("- {topic}")));
     }
     Ok(output.join("\n"))
@@ -347,44 +348,6 @@ fn best_result(
     }
 
     Ok(best.clone())
-}
-
-fn highlight_snippet(language: &str, snippet: &str) -> String {
-    let keywords = match language {
-        "rust" => &["let", "for", "in", "async", "fn", "return"][..],
-        "python" => &["from", "import", "for", "in", "async", "def", "return"],
-        "go" => &["for", "range", "func", "go", "var", "return"],
-        "javascript" | "typescript" => {
-            &["const", "let", "for", "of", "async", "function", "return"]
-        }
-        _ => &[][..],
-    };
-
-    let mut output = String::new();
-    let mut token = String::new();
-
-    for character in snippet.chars() {
-        if character.is_ascii_alphanumeric() || character == '_' {
-            token.push(character);
-            continue;
-        }
-        push_highlighted_token(&mut output, &token, keywords);
-        token.clear();
-        output.push(character);
-    }
-    push_highlighted_token(&mut output, &token, keywords);
-    output
-}
-
-fn push_highlighted_token(output: &mut String, token: &str, keywords: &[&str]) {
-    if token.is_empty() {
-        return;
-    }
-    if keywords.contains(&token) {
-        output.push_str(&token.blue().to_string());
-    } else {
-        output.push_str(token);
-    }
 }
 
 fn title_case(value: &str) -> String {
