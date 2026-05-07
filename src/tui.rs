@@ -26,6 +26,7 @@ enum Panel {
     Result,
     Related,
     History,
+    Settings,
 }
 
 pub fn run(database: &Database, config: &Config) -> Result<(), Box<dyn std::error::Error>> {
@@ -77,67 +78,81 @@ fn handle_key(
     app: &mut App,
     key: KeyEvent,
 ) -> Result<bool, Box<dyn std::error::Error>> {
-    match key.code {
-        KeyCode::Char('q') if key.modifiers.is_empty() => return Ok(true),
-        KeyCode::Char('c') if key.modifiers == KeyModifiers::CONTROL => return Ok(true),
-        KeyCode::Tab => app.next_panel(),
-        KeyCode::Char('/') => app.panel = Panel::Query,
-        KeyCode::Char('j') | KeyCode::Down => app.scroll = app.scroll.saturating_add(1),
-        KeyCode::Char('k') | KeyCode::Up => app.scroll = app.scroll.saturating_sub(1),
-        KeyCode::Char('c') => {
-            app.compare_mode = !app.compare_mode;
-            app.search(database)?;
-        }
-        KeyCode::Char('l') => {
-            app.next_language();
-            app.search(database)?;
-        }
-        KeyCode::Char('b') => {
-            if let Some(result) = &app.result {
-                session::bookmark(database, &app.session_name, result)?;
-                app.message = "bookmarked".to_string();
+    // Global Exit Keys
+    if key.code == KeyCode::Char('q') && key.modifiers.is_empty() { return Ok(true); }
+    if key.code == KeyCode::Char('c') && key.modifiers == KeyModifiers::CONTROL { return Ok(true); }
+
+    // Panel Navigation
+    if key.code == KeyCode::Tab {
+        app.next_panel();
+        return Ok(false);
+    }
+
+    match app.panel {
+        Panel::Query => match key.code {
+            KeyCode::Char(c) => {
+                app.query.insert(app.cursor, c);
+                app.cursor += 1;
+                app.search(database)?;
             }
-        }
-        KeyCode::Char('p') => {
-            if let Some(result) = &app.result {
-                session::pin(database, &app.session_name, result)?;
-                app.message = "pinned".to_string();
-            }
-        }
-        KeyCode::Enter => {
-            if app.panel == Panel::Related {
-                if let Some(topic) = app
-                    .result
-                    .as_ref()
-                    .and_then(|result| result.related.first())
-                    .cloned()
-                {
-                    app.query = topic;
-                    app.cursor = app.query.len();
+            KeyCode::Backspace => {
+                if app.cursor > 0 {
+                    app.query.remove(app.cursor - 1);
+                    app.cursor -= 1;
+                    app.search(database)?;
                 }
-            } else if app.panel == Panel::History
-                && let Some(query) = app.history.first().cloned()
-            {
-                app.query = query;
-                app.cursor = app.query.len();
             }
-            app.search(database)?;
-        }
-        KeyCode::Backspace if app.panel == Panel::Query => {
-            app.query.pop();
-            app.cursor = app.cursor.saturating_sub(1);
-            app.search(database)?;
-        }
-        KeyCode::Left if app.panel == Panel::Query => app.cursor = app.cursor.saturating_sub(1),
-        KeyCode::Right if app.panel == Panel::Query => {
-            app.cursor = (app.cursor + 1).min(app.query.len());
-        }
-        KeyCode::Char(character) if app.panel == Panel::Query => {
-            app.query.insert(app.cursor.min(app.query.len()), character);
-            app.cursor += 1;
-            app.search(database)?;
-        }
-        _ => {}
+            KeyCode::Left => app.cursor = app.cursor.saturating_sub(1),
+            KeyCode::Right => app.cursor = (app.cursor + 1).min(app.query.len()),
+            KeyCode::Enter => {
+                app.panel = Panel::Result;
+                app.search(database)?;
+            }
+            _ => {}
+        },
+        Panel::Settings => match key.code {
+            KeyCode::Char('l') => {
+                app.next_language();
+                app.search(database)?;
+            }
+            KeyCode::Char('c') => {
+                app.compare_mode = !app.compare_mode;
+                app.search(database)?;
+            }
+            KeyCode::Char('b') => {
+                if let Some(result) = &app.result {
+                    session::bookmark(database, &app.session_name, result)?;
+                    app.message = "bookmarked".to_string();
+                }
+            }
+            KeyCode::Char('p') => {
+                if let Some(result) = &app.result {
+                    session::pin(database, &app.session_name, result)?;
+                    app.message = "pinned".to_string();
+                }
+            }
+            _ => {}
+        },
+        _ => match key.code {
+            KeyCode::Char('j') | KeyCode::Down => app.scroll = app.scroll.saturating_add(1),
+            KeyCode::Char('k') | KeyCode::Up => app.scroll = app.scroll.saturating_sub(1),
+            KeyCode::Enter => {
+                if app.panel == Panel::Related {
+                    if let Some(topic) = app.result.as_ref().and_then(|r| r.related.first()).cloned() {
+                        app.query = topic;
+                        app.cursor = app.query.len();
+                        app.search(database)?;
+                    }
+                } else if app.panel == Panel::History {
+                    if let Some(query) = app.history.first().cloned() {
+                        app.query = query;
+                        app.cursor = app.query.len();
+                        app.search(database)?;
+                    }
+                }
+            }
+            _ => {}
+        },
     }
     Ok(false)
 }
@@ -154,7 +169,7 @@ fn draw(frame: &mut ratatui::Frame<'_>, app: &App) {
         .constraints([
             Constraint::Length(3), // Query
             Constraint::Min(10),   // Main Content (Result + Sidebar)
-            Constraint::Length(1), // Status Bar
+            Constraint::Length(1), // Status Bar / Settings
         ])
         .split(area);
 
@@ -263,16 +278,26 @@ fn draw(frame: &mut ratatui::Frame<'_>, app: &App) {
             .title(" History "));
     frame.render_widget(history, sidebar_chunks[1]);
 
-    // 3. Status Bar
-    let status_style = Style::default().bg(Color::DarkGray).fg(Color::White);
+    // 3. Settings Panel / Status Bar
+    let settings_focused = app.panel == Panel::Settings;
+    let status_style = if settings_focused {
+        Style::default().bg(Color::White).fg(Color::Black)
+    } else {
+        Style::default().bg(Color::DarkGray).fg(Color::White)
+    };
+    
     let status_content = Line::from(vec![
         Span::styled(" CODELEX ", Style::default().bg(Color::Cyan).fg(Color::Black).add_modifier(ratatui::style::Modifier::BOLD)),
         Span::raw(" "),
-        Span::styled(format!(" Session: {} ", app.session_name), Style::default().fg(Color::Gray)),
+        Span::styled(format!(" Session: {} ", app.session_name), if settings_focused { Style::default().fg(Color::Black) } else { Style::default().fg(Color::Gray) }),
         Span::raw(" | "),
-        Span::styled(app.message.clone(), Style::default().fg(Color::White)),
+        Span::styled(format!("(L) Lang: {} ", app.language), if settings_focused { Style::default().fg(Color::Blue).add_modifier(ratatui::style::Modifier::BOLD) } else { Style::default().fg(Color::White) }),
         Span::raw(" | "),
-        Span::styled(" ENTER to Search ", Style::default().fg(Color::Yellow)),
+        Span::styled("(C) Compare ", if settings_focused && app.compare_mode { Style::default().fg(Color::Green).add_modifier(ratatui::style::Modifier::BOLD) } else if settings_focused { Style::default().fg(Color::Black) } else { Style::default().fg(Color::White) }),
+        Span::raw(" | "),
+        Span::styled("(P) Pin ", if settings_focused { Style::default().fg(Color::Black) } else { Style::default().fg(Color::White) }),
+        Span::raw(" | "),
+        Span::styled(app.message.clone(), if settings_focused { Style::default().fg(Color::Magenta).add_modifier(ratatui::style::Modifier::BOLD) } else { Style::default().fg(Color::Yellow) }),
     ]);
     let status_bar = Paragraph::new(status_content).style(status_style);
     frame.render_widget(status_bar, chunks[2]);
@@ -359,7 +384,7 @@ impl App {
             compare_mode: false,
             languages,
             message:
-                "Tab panels  Enter open/search  l language  b bookmark  p pin  c compare  q quit"
+                "Tab to focus settings for (L)ang, (C)ompare, (B)ookmark, (P)in"
                     .to_string(),
             searching: false,
             tick: 0,
@@ -396,7 +421,8 @@ impl App {
             Panel::Query => Panel::Result,
             Panel::Result => Panel::Related,
             Panel::Related => Panel::History,
-            Panel::History => Panel::Query,
+            Panel::History => Panel::Settings,
+            Panel::Settings => Panel::Query,
         };
     }
 
