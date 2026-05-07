@@ -84,6 +84,9 @@ fn handle_key(
 
     // Panel Navigation
     if key.code == KeyCode::Tab {
+        if app.show_language_popup {
+            app.show_language_popup = false;
+        }
         app.next_panel();
         return Ok(false);
     }
@@ -110,28 +113,47 @@ fn handle_key(
             }
             _ => {}
         },
-        Panel::Settings => match key.code {
-            KeyCode::Char('l') => {
-                app.next_language();
-                app.search(database)?;
-            }
-            KeyCode::Char('c') => {
-                app.compare_mode = !app.compare_mode;
-                app.search(database)?;
-            }
-            KeyCode::Char('b') => {
-                if let Some(result) = &app.result {
-                    session::bookmark(database, &app.session_name, result)?;
-                    app.message = "bookmarked".to_string();
+        Panel::Settings => {
+            if app.show_language_popup {
+                match key.code {
+                    KeyCode::Char(c) if c.is_digit(10) => {
+                        let digit = c.to_digit(10).unwrap() as usize;
+                        if digit > 0 && digit <= app.languages.len() {
+                            app.language = app.languages[digit - 1].clone();
+                            app.show_language_popup = false;
+                            app.message = format!("language set to {}", app.language);
+                            app.search(database)?;
+                        }
+                    }
+                    KeyCode::Esc | KeyCode::Char('l') => {
+                        app.show_language_popup = false;
+                    }
+                    _ => {}
+                }
+            } else {
+                match key.code {
+                    KeyCode::Char('l') => {
+                        app.show_language_popup = true;
+                    }
+                    KeyCode::Char('c') => {
+                        app.compare_mode = !app.compare_mode;
+                        app.search(database)?;
+                    }
+                    KeyCode::Char('b') => {
+                        if let Some(result) = &app.result {
+                            session::bookmark(database, &app.session_name, result)?;
+                            app.message = "bookmarked".to_string();
+                        }
+                    }
+                    KeyCode::Char('p') => {
+                        if let Some(result) = &app.result {
+                            session::pin(database, &app.session_name, result)?;
+                            app.message = "pinned".to_string();
+                        }
+                    }
+                    _ => {}
                 }
             }
-            KeyCode::Char('p') => {
-                if let Some(result) = &app.result {
-                    session::pin(database, &app.session_name, result)?;
-                    app.message = "pinned".to_string();
-                }
-            }
-            _ => {}
         },
         _ => match key.code {
             KeyCode::Char('j') | KeyCode::Down => app.scroll = app.scroll.saturating_add(1),
@@ -301,6 +323,49 @@ fn draw(frame: &mut ratatui::Frame<'_>, app: &App) {
     ]);
     let status_bar = Paragraph::new(status_content).style(status_style);
     frame.render_widget(status_bar, chunks[2]);
+
+    // 4. Language Popup
+    if app.show_language_popup {
+        let area = centered_rect(40, 60, frame.area());
+        frame.render_widget(ratatui::widgets::Clear, area); // Clear the background
+        
+        let items: Vec<ListItem> = app.languages.iter().enumerate().map(|(i, lang)| {
+            ListItem::new(format!("{}. {}", i + 1, lang))
+                .style(if lang == &app.language {
+                    Style::default().fg(Color::Cyan).add_modifier(ratatui::style::Modifier::BOLD)
+                } else {
+                    Style::default().fg(Color::White)
+                })
+        }).collect();
+
+        let list = List::new(items)
+            .block(Block::default()
+                .borders(Borders::ALL)
+                .border_type(ratatui::widgets::BorderType::Rounded)
+                .border_style(Style::default().fg(Color::Cyan))
+                .title(" Select Language (Press #) "));
+        frame.render_widget(list, area);
+    }
+}
+
+fn centered_rect(percent_x: u16, percent_y: u16, r: ratatui::layout::Rect) -> ratatui::layout::Rect {
+    let popup_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Percentage((100 - percent_y) / 2),
+            Constraint::Percentage(percent_y),
+            Constraint::Percentage((100 - percent_y) / 2),
+        ])
+        .split(r);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage((100 - percent_x) / 2),
+            Constraint::Percentage(percent_x),
+            Constraint::Percentage((100 - percent_x) / 2),
+        ])
+        .split(popup_layout[1])[1]
 }
 
 fn render_search_result(result: &SearchResult) -> Vec<Line<'static>> {
@@ -367,6 +432,7 @@ struct App {
     message: String,
     searching: bool,
     tick: u64,
+    show_language_popup: bool,
 }
 
 impl App {
@@ -388,6 +454,7 @@ impl App {
                     .to_string(),
             searching: false,
             tick: 0,
+            show_language_popup: false,
         }
     }
 
@@ -424,18 +491,5 @@ impl App {
             Panel::History => Panel::Settings,
             Panel::Settings => Panel::Query,
         };
-    }
-
-    fn next_language(&mut self) {
-        if self.languages.is_empty() {
-            return;
-        }
-        let index = self
-            .languages
-            .iter()
-            .position(|language| language == &self.language)
-            .unwrap_or(0);
-        self.language = self.languages[(index + 1) % self.languages.len()].clone();
-        self.message = format!("language {}", self.language);
     }
 }
