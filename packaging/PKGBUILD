@@ -1,0 +1,24 @@
+# Maintainer: Codelex contributors
+pkgname=codelex
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Terminal-native syntax recall for developers switching languages"
+arch=("x86_64")
+url="https://example.invalid/codelex"
+license=("MIT")
+depends=("gcc-libs")
+makedepends=("cargo")
+source=()
+sha256sums=()
+
+build() {
+  cd "$srcdir/codelex"
+  cargo build --release --locked
+}
+
+package() {
+  cd "$srcdir/codelex"
+  install -Dm755 target/release/codelex "$pkgdir/usr/bin/codelex"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/codelex/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/codelex/README.md"
+}

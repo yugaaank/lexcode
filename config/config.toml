@@ -1,0 +1,4 @@
+default_language = "rust"
+theme = "dark"
+max_history = 100
+show_related = true

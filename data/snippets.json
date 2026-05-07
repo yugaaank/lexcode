@@ -1,0 +1,454 @@
+{
+  "languages": [
+    {
+      "name": "python",
+      "aliases": ["py"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["list append", "push array", "append"],
+          "snippets": ["items.append(value)\nitems.extend(other_items)"],
+          "related": ["iteration list", "sort list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["dict insert", "map insert", "set key"],
+          "snippets": ["data[key] = value\nvalue = data.get(key)"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["dict iterate", "map iterate", "iterate hashmap"],
+          "snippets": ["for key, value in data.items():\n    pass"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["loop list", "iterate array", "enumerate"],
+          "snippets": ["for index, value in enumerate(items):\n    pass"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["array sort", "sort array", "custom sort"],
+          "snippets": ["items.sort()\nitems.sort(key=lambda item: item.name)"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read", "open file", "read text"],
+          "snippets": ["from pathlib import Path\ntext = Path(path).read_text()"],
+          "related": ["write file"]
+        },
+        {
+          "title": "write file",
+          "category": "files",
+          "aliases": ["file write", "write text"],
+          "snippets": ["from pathlib import Path\nPath(path).write_text(text)"],
+          "related": ["read file"]
+        },
+        {
+          "title": "json load",
+          "category": "json",
+          "aliases": ["parse json", "json parse", "json loads"],
+          "snippets": ["import json\ndata = json.loads(text)\ndata = json.load(file)"],
+          "related": ["json dump"]
+        },
+        {
+          "title": "json dump",
+          "category": "json",
+          "aliases": ["serialize json", "json stringify", "json dumps"],
+          "snippets": ["text = json.dumps(data)\njson.dump(data, file)"],
+          "related": ["json load"]
+        },
+        {
+          "title": "async function",
+          "category": "async",
+          "aliases": ["async def", "await"],
+          "snippets": ["async def fetch():\n    result = await work()\n    return result"],
+          "related": []
+        },
+        {
+          "title": "string split join",
+          "category": "strings",
+          "aliases": ["split string", "join string"],
+          "snippets": ["parts = text.split(\",\")\ntext = \",\".join(parts)"],
+          "related": ["regex match"]
+        },
+        {
+          "title": "regex match",
+          "category": "regex",
+          "aliases": ["regexp", "regular expression", "capture regex"],
+          "snippets": ["import re\nmatch = re.search(pattern, text)"],
+          "related": ["string split join"]
+        }
+      ]
+    },
+    {
+      "name": "rust",
+      "aliases": ["rs"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["vec push", "vector append", "push array"],
+          "snippets": ["items.push(value);\nitems.extend(other_items);"],
+          "related": ["iteration list", "sort list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["map insert", "dict insert", "insert hashmap"],
+          "snippets": ["map.insert(key, value);\nlet value = map.get(&key);"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["map iterate", "iterate hashmap", "hash map loop"],
+          "snippets": ["for (key, value) in &map {\n    // use key, value\n}"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["vec iterate", "loop vector", "enumerate"],
+          "snippets": ["for (index, value) in items.iter().enumerate() {\n    // use index, value\n}"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["vec sort", "vector sort", "sort array"],
+          "snippets": ["items.sort();\nitems.sort_by(|a, b| a.cmp(b));"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read", "read string", "fs read"],
+          "snippets": ["let text = std::fs::read_to_string(path)?;"],
+          "related": ["write file"]
+        },
+        {
+          "title": "write file",
+          "category": "files",
+          "aliases": ["file write", "write string", "fs write"],
+          "snippets": ["std::fs::write(path, text)?;"],
+          "related": ["read file"]
+        },
+        {
+          "title": "json load",
+          "category": "json",
+          "aliases": ["serde json", "parse json", "json parse"],
+          "snippets": ["let value: T = serde_json::from_str(&text)?;"],
+          "related": ["json dump"]
+        },
+        {
+          "title": "json dump",
+          "category": "json",
+          "aliases": ["serialize json", "serde serialize", "json stringify"],
+          "snippets": ["let text = serde_json::to_string(&value)?;"],
+          "related": ["json load"]
+        },
+        {
+          "title": "async function",
+          "category": "async",
+          "aliases": ["async fn", "await"],
+          "snippets": ["async fn fetch() -> Result<T, Error> {\n    work().await\n}"],
+          "related": []
+        },
+        {
+          "title": "string split join",
+          "category": "strings",
+          "aliases": ["split string", "join string"],
+          "snippets": ["let parts: Vec<_> = text.split(',').collect();\nlet text = parts.join(\",\");"],
+          "related": ["regex match"]
+        },
+        {
+          "title": "regex match",
+          "category": "regex",
+          "aliases": ["regexp", "regular expression", "capture regex"],
+          "snippets": ["let re = regex::Regex::new(pattern)?;\nlet matched = re.is_match(text);"],
+          "related": ["string split join"]
+        }
+      ]
+    },
+    {
+      "name": "go",
+      "aliases": ["golang"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["slice append", "push array", "append"],
+          "snippets": ["items = append(items, value)\nitems = append(items, otherItems...)"],
+          "related": ["iteration list", "sort list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["map insert", "dict insert", "set key"],
+          "snippets": ["m[key] = value\nvalue, ok := m[key]"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["map iterate", "iterate hashmap", "range map"],
+          "snippets": ["for key, value := range m {\n    _ = key\n    _ = value\n}"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["slice iterate", "loop array", "enumerate"],
+          "snippets": ["for index, value := range items {\n    _ = index\n    _ = value\n}"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["slice sort", "sort array", "custom sort"],
+          "snippets": ["sort.Slice(items, func(i, j int) bool {\n    return items[i] < items[j]\n})"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read", "read text", "os read"],
+          "snippets": ["data, err := os.ReadFile(path)\ntext := string(data)"],
+          "related": ["write file"]
+        },
+        {
+          "title": "write file",
+          "category": "files",
+          "aliases": ["file write", "write text"],
+          "snippets": ["err := os.WriteFile(path, []byte(text), 0644)"],
+          "related": ["read file"]
+        },
+        {
+          "title": "json load",
+          "category": "json",
+          "aliases": ["parse json", "json parse", "unmarshal json"],
+          "snippets": ["var value T\nerr := json.Unmarshal(data, &value)"],
+          "related": ["json dump"]
+        },
+        {
+          "title": "json dump",
+          "category": "json",
+          "aliases": ["serialize json", "marshal json", "json stringify"],
+          "snippets": ["data, err := json.Marshal(value)"],
+          "related": ["json load"]
+        },
+        {
+          "title": "async function",
+          "category": "async",
+          "aliases": ["goroutine", "go routine", "concurrent function"],
+          "snippets": ["go func() {\n    work()\n}()"],
+          "related": []
+        },
+        {
+          "title": "string split join",
+          "category": "strings",
+          "aliases": ["split string", "join string"],
+          "snippets": ["parts := strings.Split(text, \",\")\ntext = strings.Join(parts, \",\")"],
+          "related": ["regex match"]
+        },
+        {
+          "title": "regex match",
+          "category": "regex",
+          "aliases": ["regexp", "regular expression", "capture regex"],
+          "snippets": ["re := regexp.MustCompile(pattern)\nmatched := re.MatchString(text)"],
+          "related": ["string split join"]
+        }
+      ]
+    },
+    {
+      "name": "javascript",
+      "aliases": ["js"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["push array", "append", "list append"],
+          "snippets": ["items.push(value);\nitems.push(...otherItems);"],
+          "related": ["iteration list", "sort list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["object insert", "map insert", "set key"],
+          "snippets": ["obj[key] = value;\nmap.set(key, value);"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["object iterate", "map iterate", "iterate hashmap"],
+          "snippets": ["for (const [key, value] of Object.entries(obj)) {\n  // use key, value\n}"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["array iterate", "loop array", "enumerate"],
+          "snippets": ["items.forEach((value, index) => {\n  // use value, index\n});"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["array sort", "custom sort"],
+          "snippets": ["items.sort();\nitems.sort((a, b) => a - b);"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read", "read text", "fs read"],
+          "snippets": ["const text = await fs.readFile(path, \"utf8\");"],
+          "related": ["write file"]
+        },
+        {
+          "title": "write file",
+          "category": "files",
+          "aliases": ["file write", "write text"],
+          "snippets": ["await fs.writeFile(path, text, \"utf8\");"],
+          "related": ["read file"]
+        },
+        {
+          "title": "json load",
+          "category": "json",
+          "aliases": ["parse json", "json parse", "json loads"],
+          "snippets": ["const value = JSON.parse(text);"],
+          "related": ["json dump"]
+        },
+        {
+          "title": "json dump",
+          "category": "json",
+          "aliases": ["serialize json", "json stringify"],
+          "snippets": ["const text = JSON.stringify(value);"],
+          "related": ["json load"]
+        },
+        {
+          "title": "async function",
+          "category": "async",
+          "aliases": ["async await", "await"],
+          "snippets": ["async function fetchValue() {\n  return await work();\n}"],
+          "related": []
+        },
+        {
+          "title": "string split join",
+          "category": "strings",
+          "aliases": ["split string", "join string"],
+          "snippets": ["const parts = text.split(\",\");\nconst text = parts.join(\",\");"],
+          "related": ["regex match"]
+        },
+        {
+          "title": "regex match",
+          "category": "regex",
+          "aliases": ["regexp", "regular expression", "capture regex"],
+          "snippets": ["const matched = /pattern/.test(text);\nconst match = text.match(regex);"],
+          "related": ["string split join"]
+        }
+      ]
+    },
+    {
+      "name": "typescript",
+      "aliases": ["ts"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["push array", "append", "list append"],
+          "snippets": ["items.push(value);\nitems.push(...otherItems);"],
+          "related": ["iteration list", "sort list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["record insert", "map insert", "set key"],
+          "snippets": ["record[key] = value;\nmap.set(key, value);"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["record iterate", "map iterate", "iterate hashmap"],
+          "snippets": ["for (const [key, value] of Object.entries(record)) {\n  // use key, value\n}"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["array iterate", "loop array", "enumerate"],
+          "snippets": ["items.forEach((value, index) => {\n  // use value, index\n});"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["array sort", "custom sort"],
+          "snippets": ["items.sort();\nitems.sort((a, b) => a - b);"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read", "read text", "fs read"],
+          "snippets": ["const text = await fs.readFile(path, \"utf8\");"],
+          "related": ["write file"]
+        },
+        {
+          "title": "write file",
+          "category": "files",
+          "aliases": ["file write", "write text"],
+          "snippets": ["await fs.writeFile(path, text, \"utf8\");"],
+          "related": ["read file"]
+        },
+        {
+          "title": "json load",
+          "category": "json",
+          "aliases": ["parse json", "json parse"],
+          "snippets": ["const value: T = JSON.parse(text) as T;"],
+          "related": ["json dump"]
+        },
+        {
+          "title": "json dump",
+          "category": "json",
+          "aliases": ["serialize json", "json stringify"],
+          "snippets": ["const text = JSON.stringify(value);"],
+          "related": ["json load"]
+        },
+        {
+          "title": "async function",
+          "category": "async",
+          "aliases": ["async await", "await"],
+          "snippets": ["async function fetchValue(): Promise<T> {\n  return await work();\n}"],
+          "related": []
+        },
+        {
+          "title": "string split join",
+          "category": "strings",
+          "aliases": ["split string", "join string"],
+          "snippets": ["const parts = text.split(\",\");\nconst text = parts.join(\",\");"],
+          "related": ["regex match"]
+        },
+        {
+          "title": "regex match",
+          "category": "regex",
+          "aliases": ["regexp", "regular expression", "capture regex"],
+          "snippets": ["const matched = /pattern/.test(text);\nconst match = text.match(regex);"],
+          "related": ["string split join"]
+        }
+      ]
+    }
+  ]
+}
