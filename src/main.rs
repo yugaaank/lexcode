@@ -7,6 +7,7 @@ mod logging;
 mod models;
 mod search;
 mod session;
+mod sync;
 mod tui;
 
 fn main() {

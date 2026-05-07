@@ -5,6 +5,7 @@ use directories::ProjectDirs;
 use rusqlite::{Connection, OptionalExtension, params};
 
 use crate::models::{SearchCandidate, SearchResult, SeedFile};
+use crate::sync;
 
 pub struct Database {
     connection: Connection,
@@ -21,6 +22,7 @@ impl Database {
         };
         database.migrate()?;
         database.seed_if_empty()?;
+        let _ = database.sync_packs();
         Ok(database)
     }
 
@@ -357,7 +359,7 @@ impl Database {
         )
     }
 
-    fn link_related_topics(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn link_related_topics(&self) -> Result<(), Box<dyn std::error::Error>> {
         let seed: SeedFile = serde_json::from_str(include_str!("../data/snippets.json"))?;
         for language in seed.languages {
             for topic in language.topics {
@@ -376,6 +378,65 @@ impl Database {
         }
         Ok(())
     }
+
+    pub fn sync_packs(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let packs_dir = default_packs_dir()?;
+        if !packs_dir.exists() {
+            fs::create_dir_all(&packs_dir)?;
+            return Ok(());
+        }
+
+        let snippets = sync::parse_pack(&packs_dir)?;
+        for ps in snippets {
+            // 1. Ensure language exists
+            self.connection.execute(
+                "INSERT OR IGNORE INTO languages (name, alias) VALUES (?1, ?1)",
+                params![ps.language],
+            )?;
+            let language_id = self.language_id(&ps.language)?;
+
+            // 2. Ensure topic exists
+            self.connection.execute(
+                "INSERT OR IGNORE INTO topics (language_id, title, category) VALUES (?1, ?2, ?3)",
+                params![language_id, ps.frontmatter.topic, ps.frontmatter.category],
+            )?;
+            let topic_id = self
+                .topic_id(&ps.language, &ps.frontmatter.topic)?
+                .unwrap();
+
+            // 3. Upsert snippet
+            self.connection.execute(
+                "
+                INSERT INTO snippets (topic_id, snippet, priority)
+                SELECT ?1, ?2, 0
+                WHERE NOT EXISTS (
+                  SELECT 1 FROM snippets WHERE topic_id = ?1 AND snippet = ?2
+                )
+                ",
+                params![topic_id, ps.snippet],
+            )?;
+
+            // 4. Add aliases
+            for alias in ps.frontmatter.aliases {
+                self.connection.execute(
+                    "INSERT OR IGNORE INTO aliases (topic_id, alias) VALUES (?1, ?2)",
+                    params![topic_id, alias],
+                )?;
+            }
+
+            // 5. Add related
+            for related in ps.frontmatter.related {
+                if let Some(related_id) = self.topic_id(&ps.language, &related)? {
+                    self.connection.execute(
+                        "INSERT OR IGNORE INTO related_topics (topic_id, related_topic_id) VALUES (?1, ?2)",
+                        params![topic_id, related_id],
+                    )?;
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 pub fn default_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
@@ -392,6 +453,10 @@ pub fn default_data_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
     }
     let dirs = ProjectDirs::from("", "", "codelex").ok_or("unable to resolve data directory")?;
     Ok(dirs.data_dir().to_path_buf())
+}
+
+pub fn default_packs_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    Ok(default_config_dir()?.join("packs"))
 }
 
 fn validate_seed(seed: &SeedFile) -> Result<(), Box<dyn std::error::Error>> {

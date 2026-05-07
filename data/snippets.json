@@ -87,6 +87,20 @@
           "aliases": ["regexp", "regular expression", "capture regex"],
           "snippets": ["import re\nmatch = re.search(pattern, text)"],
           "related": ["string split join"]
+        },
+        {
+          "title": "list comprehension",
+          "category": "arrays",
+          "aliases": ["filter list", "map list"],
+          "snippets": ["doubled = [x * 2 for x in items if x > 0]"],
+          "related": ["iteration list"]
+        },
+        {
+          "title": "http request",
+          "category": "networking",
+          "aliases": ["get url", "fetch", "requests"],
+          "snippets": ["import requests\nresp = requests.get(url)\ntext = resp.text"],
+          "related": []
         }
       ]
     },
@@ -177,6 +191,20 @@
           "aliases": ["regexp", "regular expression", "capture regex"],
           "snippets": ["let re = regex::Regex::new(pattern)?;\nlet matched = re.is_match(text);"],
           "related": ["string split join"]
+        },
+        {
+          "title": "http request",
+          "category": "networking",
+          "aliases": ["get url", "fetch", "reqwest"],
+          "snippets": ["let body = reqwest::get(url).await?.text().await?;"],
+          "related": []
+        },
+        {
+          "title": "thread spawn",
+          "category": "concurrency",
+          "aliases": ["parallel", "background task"],
+          "snippets": ["std::thread::spawn(move || {\n    work();\n});"],
+          "related": []
         }
       ]
     },
@@ -267,6 +295,13 @@
           "aliases": ["regexp", "regular expression", "capture regex"],
           "snippets": ["re := regexp.MustCompile(pattern)\nmatched := re.MatchString(text)"],
           "related": ["string split join"]
+        },
+        {
+          "title": "http request",
+          "category": "networking",
+          "aliases": ["get url", "fetch", "http get"],
+          "snippets": ["resp, err := http.Get(url)\nbody, err := io.ReadAll(resp.Body)"],
+          "related": []
         }
       ]
     },
@@ -357,6 +392,13 @@
           "aliases": ["regexp", "regular expression", "capture regex"],
           "snippets": ["const matched = /pattern/.test(text);\nconst match = text.match(regex);"],
           "related": ["string split join"]
+        },
+        {
+          "title": "http request",
+          "category": "networking",
+          "aliases": ["fetch", "get url"],
+          "snippets": ["const response = await fetch(url);\nconst text = await response.text();"],
+          "related": []
         }
       ]
     },
@@ -440,13 +482,191 @@
           "aliases": ["split string", "join string"],
           "snippets": ["const parts = text.split(\",\");\nconst text = parts.join(\",\");"],
           "related": ["regex match"]
+        }
+      ]
+    },
+    {
+      "name": "c++",
+      "aliases": ["cpp"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["vector push", "push array"],
+          "snippets": ["items.push_back(value);\nitems.insert(items.end(), other.begin(), other.end());"],
+          "related": ["iteration list", "sort list"]
         },
         {
-          "title": "regex match",
-          "category": "regex",
-          "aliases": ["regexp", "regular expression", "capture regex"],
-          "snippets": ["const matched = /pattern/.test(text);\nconst match = text.match(regex);"],
-          "related": ["string split join"]
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["unordered map insert"],
+          "snippets": ["map[key] = value;\nauto it = map.find(key);"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["unordered map iterate"],
+          "snippets": ["for (const auto& [key, value] : map) {\n    // use key, value\n}"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["vector iterate", "loop array"],
+          "snippets": ["for (size_t i = 0; i < items.size(); ++i) {\n    // use items[i]\n}"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["vector sort"],
+          "snippets": ["std::sort(items.begin(), items.end());"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read"],
+          "snippets": ["std::ifstream file(path);\nstd::string text((std::istreambuf_iterator<char>(file)), {});"],
+          "related": ["write file"]
+        },
+        {
+          "title": "write file",
+          "category": "files",
+          "aliases": ["file write"],
+          "snippets": ["std::ofstream file(path);\nfile << text;"],
+          "related": ["read file"]
+        }
+      ]
+    },
+    {
+      "name": "bash",
+      "aliases": ["sh"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["append array"],
+          "snippets": ["items+=(\"$value\")"],
+          "related": ["iteration list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["assoc array"],
+          "snippets": ["declare -A map\nmap[$key]=$value"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["loop array"],
+          "snippets": ["for value in \"${items[@]}\"; do\n  :\ndone"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read"],
+          "snippets": ["text=$(<\"$path\")"],
+          "related": ["write file"]
+        }
+      ]
+    },
+    {
+      "name": "java",
+      "aliases": ["j"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["list add"],
+          "snippets": ["items.add(value);"],
+          "related": ["iteration list", "sort list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["map put"],
+          "snippets": ["map.put(key, value);\nvar value = map.get(key);"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["map iterate"],
+          "snippets": ["for (var entry : map.entrySet()) {\n    var key = entry.getKey();\n    var value = entry.getValue();\n}"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["list iterate"],
+          "snippets": ["for (var item : items) {\n    // use item\n}"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["list sort"],
+          "snippets": ["items.sort(Comparator.naturalOrder());"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read"],
+          "snippets": ["String text = Files.readString(Path.of(path));"],
+          "related": ["write file"]
+        }
+      ]
+    },
+    {
+      "name": "kotlin",
+      "aliases": ["kt"],
+      "topics": [
+        {
+          "title": "array append",
+          "category": "arrays",
+          "aliases": ["mutable list add"],
+          "snippets": ["items.add(value)"],
+          "related": ["iteration list", "sort list"]
+        },
+        {
+          "title": "hashmap insert",
+          "category": "hashmap",
+          "aliases": ["map set"],
+          "snippets": ["map[key] = value"],
+          "related": ["hashmap iterate"]
+        },
+        {
+          "title": "hashmap iterate",
+          "category": "iteration",
+          "aliases": ["map iterate"],
+          "snippets": ["for ((key, value) in map) {\n    // use key, value\n}"],
+          "related": ["hashmap insert"]
+        },
+        {
+          "title": "iteration list",
+          "category": "iteration",
+          "aliases": ["list iterate"],
+          "snippets": ["for (item in items) {\n    // use item\n}"],
+          "related": ["array append"]
+        },
+        {
+          "title": "sort list",
+          "category": "sorting",
+          "aliases": ["list sort"],
+          "snippets": ["items.sort()"],
+          "related": ["array append"]
+        },
+        {
+          "title": "read file",
+          "category": "files",
+          "aliases": ["file read"],
+          "snippets": ["val text = File(path).readText()"],
+          "related": ["write file"]
         }
       ]
     }

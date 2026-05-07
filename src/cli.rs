@@ -42,6 +42,7 @@ enum Command {
         command: SessionCommand,
     },
     Tui,
+    Sync,
     Paths,
     Bench {
         #[arg(default_value = "hashmap iterate")]
@@ -90,7 +91,8 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     if matches!(cli.command, Some(Command::Paths)) {
         println!("config: {}", default_config_dir()?.display());
-        println!("data: {}", default_data_dir()?.display());
+        println!("data:   {}", default_data_dir()?.display());
+        println!("packs:  {}", crate::db::default_packs_dir()?.display());
         return Ok(());
     }
 
@@ -121,6 +123,10 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some(Command::Session { command }) => handle_session(&database, command)?,
         Some(Command::Paths) | Some(Command::Validate) => unreachable!(),
+        Some(Command::Sync) => {
+            database.sync_packs()?;
+            println!("synced packs from {}", crate::db::default_packs_dir()?.display());
+        }
         Some(Command::Bench { query }) => handle_bench(&database, &query)?,
         Some(Command::Tui) => unreachable!(),
         None => handle_lookup(&database, cli)?,
