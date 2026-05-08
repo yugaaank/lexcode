@@ -2,16 +2,6 @@
 
 > **Syntax recall at the speed of thought.** Stop paying the context-switch tax.
 
-```text
-    _           _      _            
-   | |         | |    | |           
-   | |     ___ | |  __| | ___ __  __
-   | |    / _ \| | / _` |/ _ \\ \/ /
-   | |___|  __/| || (_| |  __/ >  < 
-   \_____/\___||_| \__,_|\___|/_/\_\
-                                    
-```
-
 **Codelex** is a terminal-native syntax recall system for polyglot developers who are tired of SEO garbage, StackOverflow archaeology, and AI hallucinations. 
 
 It doesn't "generate" code. It **retrieves** curated, idiomatic snippets from a local SQLite database faster than you can Alt-Tab.
